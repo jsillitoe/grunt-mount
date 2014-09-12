@@ -16,6 +16,17 @@ buildPath = function(options, platform, sep){
         ].join(sep);
 },
 
+buildPathNfs = function(options, platform, sep){
+    var share = options.share,
+        folder = pathNormaliser(share.folder, sep);
+
+    return [
+        options.share.host,
+        ":",
+        folder
+    ].join("");
+},
+
 mklink = function(driveLetter, mountPoint){
     var command = [
         "mklink",
@@ -28,7 +39,7 @@ mklink = function(driveLetter, mountPoint){
 };
 
 module.exports.mount = function(options, platform, sep){
-    var path = buildPath(options, platform, sep),
+    var path = options['*nix'].fileSystem === 'nfs' ? buildPathNfs(options, platform, sep) : buildPath(options, platform, sep),
         mountPoint = pathNormaliser(options.mountPoint, sep);
 
     var command = {
@@ -43,7 +54,7 @@ module.exports.mount = function(options, platform, sep){
             "-t " + options['*nix'].fileSystem,
             path,
             mountPoint,
-            options.username ? "-o user=" + options.username + ",pass=" + options.password : ""
+            options.username && options['*nix'].fileSystem !== 'nfs' ? "-o user=" + options.username + ",pass=" + options.password : ""
         ],
         win32: [
             "net use",

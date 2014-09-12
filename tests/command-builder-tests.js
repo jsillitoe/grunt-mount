@@ -86,6 +86,7 @@ describe('command builder tests', function(){
                 var result = commandBuilder.mount(options, 'darwin', '/');
                 result.should.eql('mount -t smbfs //server.com/path/to/share ../share');
             });
+
         });
 
         describe('building the linux command', function(){
@@ -118,6 +119,14 @@ describe('command builder tests', function(){
 
                 var result = commandBuilder.mount(options, 'linux', '/');
                 result.should.eql('mount -t smbfs //server.com/path/to/share ../share');
+            });
+
+            it('should return the correct command when the fileSystem is nfs', function(){
+                var options = util._extend({}, standardOptions);
+                options['*nix'].fileSystem = "nfs";
+
+                var result = commandBuilder.mount(options, 'linux', '/');
+                result.should.eql('mount -t nfs server.com:/path/to/share ../share');
             });
         });
     });
